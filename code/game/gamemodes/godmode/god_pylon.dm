@@ -30,7 +30,7 @@
 		return
 	to_chat(L, "<span class='notice'>You place your hands on \the [src], feeling yourself intune to its vibrations.</span>")
 	intuned += L
-	register_signal(L, SIGNAL_QDELETING, /obj/structure/deity/pylon/proc/remove_intuned)
+	register_signal(L, SIGNAL_QDELETING, nameof(.proc/remove_intuned))
 
 /obj/structure/deity/pylon/proc/remove_intuned(mob/living/L)
 	if(!(L in intuned))
@@ -49,5 +49,5 @@
 		for(var/obj/structure/deity/pylon/P in linked_god.structures)
 			if(P == src || linked_god.pylon == P)
 				continue
-			P.audible_message("<b>\The [P]</b> resonates, \"[text]\"")
+			P.audible_message("<b>\The [P]</b> resonates, \"[text]\"", runechat_message = text)
 	to_chat(linked_god, "\icon[src] <span class='game say'><span class='name'>[M]</span> (<A href='?src=\ref[linked_god];jump=\ref[src];'>P</A>) [verb], [linked_god.pylon == src ? "<b>" : ""]<span class='message'><span class='body'>\"[text]\"</span></span>[linked_god.pylon == src ? "</b>" : ""]</span>")

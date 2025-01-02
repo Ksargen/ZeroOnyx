@@ -24,13 +24,14 @@ would spawn and follow the beaker, even if it is carried or thrown.
 	number = min(n, 10)
 	cardinals = c
 	location = loc
+	register_signal(holder, SIGNAL_QDELETING, nameof(.proc/onHolderDeleted))
 	setup = 1
 
 /datum/effect/effect/system/proc/attach(atom/atom)
 	if(holder)
 		unregister_signal(holder, SIGNAL_QDELETING)
 	holder = atom
-	register_signal(holder, SIGNAL_QDELETING, /datum/effect/effect/system/proc/onHolderDeleted)
+	register_signal(holder, SIGNAL_QDELETING, nameof(.proc/onHolderDeleted))
 
 /datum/effect/effect/system/proc/start()
 
@@ -77,7 +78,7 @@ steam.start() -- spawns the effect
 
 /datum/effect/effect/system/steam_spread/start()
 	for(var/i = 0, i < src.number, i++)
-		addtimer(CALLBACK(src, /datum/effect/effect/system/proc/spread, i), 0)
+		addtimer(CALLBACK(src, nameof(.proc/spread), i), 0)
 
 /datum/effect/effect/system/steam_spread/spread(i)
 	set waitfor = 0
@@ -146,7 +147,7 @@ steam.start() -- spawns the effect
 
 /datum/effect/effect/system/spark_spread/start()
 	for(var/i = 0, i < src.number, i++)
-		addtimer(CALLBACK(src, /datum/effect/effect/system/proc/spread, i), 0)
+		addtimer(CALLBACK(src, nameof(.proc/spread), i), 0)
 
 /datum/effect/effect/system/spark_spread/spread(i)
 	set waitfor = 0
@@ -330,7 +331,7 @@ steam.start() -- spawns the effect
 	for(var/i in 0 to src.number - 1)
 		if(src.total_smoke > 20)
 			return
-		addtimer(CALLBACK(src, /datum/effect/effect/system/proc/spread, i), 0)
+		addtimer(CALLBACK(src, nameof(.proc/spread), i), 0)
 
 /datum/effect/effect/system/smoke_spread/spread(i)
 	if(holder)

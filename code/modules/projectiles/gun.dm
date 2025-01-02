@@ -1,36 +1,10 @@
-/*
-	Defines a firing mode for a gun.
-
-	A firemode is created from a list of fire mode settings. Each setting modifies the value of the gun var with the same name.
-	If the fire mode value for a setting is null, it will be replaced with the initial value of that gun's variable when the firemode is created.
-	Obviously not compatible with variables that take a null value. If a setting is not present, then the corresponding var will not be modified.
-*/
-/datum/firemode
-	var/name = "default"
-	var/list/settings = list()
-
-/datum/firemode/New(obj/item/gun/gun, list/properties = null)
-	..()
-	if(!properties) return
-
-	for(var/propname in properties)
-		var/propvalue = properties[propname]
-
-		if(propname == "mode_name")
-			name = propvalue
-		else if(isnull(propvalue))
-			settings[propname] = gun.vars[propname] //better than initial() as it handles list vars like burst_accuracy
-		else
-			settings[propname] = propvalue
-
-/datum/firemode/proc/apply_to(obj/item/gun/gun)
-	for(var/propname in settings)
-		gun.vars[propname] = settings[propname]
-
 //Parent gun type. Guns are weapons that can be aimed at mobs and act over a distance
+// TODO(rufus): optimize the copypasted description_info's with inheritance or some other apporach
 /obj/item/gun
 	name = "gun"
 	desc = "Its a gun. It's pretty terrible, though."
+	description_info = "This is a gun. To fire the weapon, ensure your intent is *not* set to 'help', have your gun mode set to 'fire', \
+	then click where you want to fire."
 	icon = 'icons/obj/gun.dmi'
 	item_icons = list(
 		slot_l_hand_str = 'icons/mob/onmob/items/lefthand_guns.dmi',
@@ -87,7 +61,11 @@
 /obj/item/gun/Initialize()
 	. = ..()
 	for(var/i in 1 to firemodes.len)
-		firemodes[i] = new /datum/firemode(src, firemodes[i])
+		// NOTE(rufus): list support is kept for backwards compatibility reasons, but may be safely removed
+		//   if all weapons are converted to a set of pre-defined firemodes with some modifiers/coefficients
+		//   applied where slight changes are necessary
+		if(islist(firemodes[i]))
+			firemodes[i] = new /datum/firemode(src, firemodes[i])
 
 	if(isnull(scoped_accuracy))
 		scoped_accuracy = accuracy
@@ -112,8 +90,8 @@
 //Checks whether a given mob can use the gun
 //Any checks that shouldn't result in handle_click_empty() being called if they fail should go here.
 //Otherwise, if you want handle_click_empty() to be called, check in consume_next_projectile() and return null there.
+// TODO(rufus): refactor to a better name than a "special" check as it's undescriptive
 /obj/item/gun/proc/special_check(mob/user)
-
 	if(!istype(user, /mob/living))
 		return 0
 	if(!user.IsAdvancedToolUser())
@@ -221,6 +199,7 @@
 	next_fire_time = world.time + fire_delay
 
 //obtains the next projectile to fire
+// TODO(rufus):
 /obj/item/gun/proc/consume_next_projectile()
 	return null
 
